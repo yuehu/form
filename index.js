@@ -9,6 +9,10 @@ var emitter = require('emitter');
 
 
 function Form(el) {
+  if (!(this instanceof Form)) {
+    return new Form(el);
+  }
+
   var form = this;
 
   form.element = el;
