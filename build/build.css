@@ -1,0 +1,85 @@
+.vertical-field {
+  border: none;
+  padding: 0 0 20px;
+}
+.required label:after {
+  content: '*';
+  vertical-align: middle;
+  margin-left: 2px;
+}
+
+.form-label, .form-message {
+  color: #7C7C7C;
+  font-family: "Avenir", "Helvetica Neue", "Helvetica", "Xin Gothic", "Hiragino Sans GB", "WenQuanYi Micro Hei", "Microsoft YaHei", "SimSun", sans-serif;
+}
+
+.form-label label {
+  margin-right: 14px;
+  font-weight: 500;
+}
+
+.form-input input {
+  border: none;
+  border-radius: 4px;
+  outline: none;
+  background: rgba(0, 0, 0, 0.064);
+  padding: 8px 6px;
+  font-size: 18px;
+  line-height: 1;
+  box-sizing: border-box;
+  width: 300px;
+  margin-right: 4px;
+}
+.form-message {
+  visibility: hidden;
+  margin-top: 2px;
+  font-size: 12px;
+}
+
+.success .form-input input {
+  background: rgba(0, 252, 0, 0.064);
+}
+
+.success .form-input:after {
+  content: "✔︎";
+  color: #6BAB57;
+}
+
+.error .form-input input {
+  background: rgba(252, 60, 0, 0.064);
+  color: #EB5E34;
+}
+
+.error .form-input:after {
+  content: "✘";
+  color: #EB5E34;
+}
+
+.success .form-message,
+.error .form-message {
+  visibility: visible;
+}
+
+/* Password Strength */
+.password-strength span {
+  display: inline-block;
+  width: 48px;
+  height: 5px;
+  background: rgba(0, 0, 0, 0.04);
+  -webkit-transition: background .2s ease-in-out;
+  -moz-transition: background .2s ease-in-out;
+  -ms-transition: background .2s ease-in-out;
+  transition: background .2s ease-in-out;
+}
+.password-strength-simple span:first-of-type {
+  background: #EB5E34;
+}
+.password-strength-medium span {
+  background: #FCDB76;
+}
+.password-strength-medium span:last-of-type {
+  background: rgba(0, 0, 0, 0.04);
+}
+.password-strength-strong span {
+  background: #6BAB57;
+}

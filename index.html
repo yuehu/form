@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Form</title>
+  <link rel="stylesheet" href="build/build.css">
+  <script src="build/build.js"></script>
+  <style>
+    .footer {
+      color: #666;
+      font: 500 16px/1.6 "Helvetica Neue", Helvetica, sans-serif;
+    }
+    .footer a {
+      color: #444;
+    }
+    .container {
+      max-width: 650px;
+      margin: 60px auto;
+      padding: 30px 20px;
+    }
+    form {
+      margin: 20px 0 80px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Form</h1>
+    <form action="">
+      <fieldset class="vertical-field">
+        <div class="form-label">
+          <label for="username">Username</label>
+          <small>foo or bar</small>
+        </div>
+        <div class="form-input">
+          <input id="username" type="text" pattern="foo|bar" required>
+        </div>
+      </fieldset>
+
+      <fieldset class="vertical-field required">
+        <div class="form-label">
+          <label for="email">Email</label>
+        </div>
+        <div class="form-input">
+          <input id="email" type="email" placeholder="Email" required>
+        </div>
+      </fieldset>
+
+      <fieldset class="vertical-field">
+        <div class="form-label">
+          <label for="password">Password</label>
+        </div>
+        <div class="form-input">
+          <input id="password" type="password">
+        </div>
+        <div class="password-strength">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </fieldset>
+
+      <fieldset class="vertical-field">
+        <button>Sign Up</button>
+      </fieldset>
+    </form>
+    <div class="footer">
+      <p><a href="https://github.com/yuehu/form">Fork me on GitHub</a></p>
+      <p>A component by <a href="http://lepture.com/">Hsiaoming Yang</a></p>
+    </div>
+  </div>
+  <script>
+    var el = document.getElementsByTagName('form')[0];
+    var form = require('form')(el);
+    form.checkSubmits();
+    form.on('change', form.checkSubmits);
+  </script>
+</body>
+</html>
