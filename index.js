@@ -6,7 +6,6 @@ var events = require('event');
 var query = require('query');
 var classes = require('classes');
 var emitter = require('emitter');
-var password = require('password-strength');
 
 
 function Form(el) {
@@ -50,6 +49,11 @@ Form.prototype.bind = function(input) {
   }
 
   var f = fieldset(input);
+
+  if (input.required) {
+    // show as required fieldset
+    f && f._class.add('required');
+  }
 
   var field = {
     valid: !input.required,

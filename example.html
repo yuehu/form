@@ -5,6 +5,12 @@
   <title>Form</title>
   <link rel="stylesheet" href="form.css">
   <script src="build/build.js"></script>
+  <style>
+    .container {
+      max-width: 650px;
+      margin: 90px auto;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -12,10 +18,10 @@
       <fieldset class="vertical-field">
         <div class="form-label">
           <label for="username">Username</label>
-          <small>English Characters</small>
+          <small>foo or bar</small>
         </div>
         <div class="form-input">
-          <input id="username" type="text">
+          <input id="username" type="text" pattern="foo|bar" required>
         </div>
       </fieldset>
 
@@ -36,9 +42,9 @@
           <input id="password" type="password">
         </div>
         <div class="password-strength">
-          <span class="strength-1"></span>
-          <span class="strength-2"></span>
-          <span class="strength-3"></span>
+          <span></span>
+          <span></span>
+          <span></span>
         </div>
       </fieldset>
 
@@ -50,7 +56,9 @@
   <script>
     var el = document.getElementsByTagName('form')[0];
     var Form = require('form');
-    new Form(el);
+    var form = new Form(el);
+    form.checkSubmits();
+    form.on('change', form.checkSubmits);
   </script>
 </body>
 </html>
