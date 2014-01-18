@@ -1,7 +1,9 @@
+/**
+ * Form UI and validation.
+ */
 
 var events = require('event');
 var query = require('query');
-var email = require('valid-email');
 var classes = require('classes');
 var password = require('password-strength');
 
@@ -16,44 +18,102 @@ function Form(el) {
   }
 }
 
-Form.prototype.bind = function(input) {
-  this.fields[input] = !input.required;
 
-  var field = fieldset(input);
+Form.prototype.bind = function(input) {
+  var form = this;
+  var f = fieldset(input);
+
+  var field = {
+    valid: !input.required,
+    fieldset: f,
+    response: null
+  };
+
+  form.fields[input] = field;
+
   events.bind(input, 'focus', function() {
-    field && field._class.remove('error').remove('success');
+    f && f._class.remove('error').remove('success');
   });
 
   events.bind(input, 'blur', function() {
+    if (field.response) form.render(f, field.response);
+  });
+
+  if (input.type === 'email') {
+    this.bindEmail(input);
+  } else if (input.type === 'password') {
+    this.bindPassword(input);
+  }
+
+};
+
+Form.prototype.bindEmail = function(input) {
+  var form = this;
+  var validEmail = require('valid-email');
+
+  var field = form.fields[input];
+
+  events.bind(input, 'change', function() {
+    field.response = null;
+
     // not required field can has no value
     if (!input.required && !input.value) return;
 
-    // validate email
-    if (input.type === 'email') {
-      email(input.value, function(res) {
-        if (res.hint) {
-          res.hint = 'Did you mean: ' + res.hint;
-        }
-        decorateField(field, res);
-      });
-    } else if (input.type === 'password') {
-      // validate password
-      password(input.value, function(res) {
-        if (!input.value) res.hint = 'password is required';
-        decorateField(field, res);
-      });
-    }
+    validEmail(input.value, function(res) {
+      field.response = res;
+      field.valid = res.valid;
+
+      if (res.hint) res.hint = 'Did you mean: ' + res.hint;
+      form.render(field.fieldset, res);
+    });
+  });
+};
+
+Form.prototype.bindPassword = function(input) {
+  var form = this;
+  var validPassword = require('password-strength');
+  var field = form.fields[input];
+
+  events.bind(input, 'change', function() {
+    field.response = null;
+
+    // not required field can has no value
+    if (!input.required && !input.value) return;
+
+    // validate password
+    validPassword(input.value, function(res) {
+      field.valid = res.valid;
+      field.response = res;
+      form.render(field.fieldset, res);
+    });
   });
 
-  if (input.type === 'password') {
-    // validate password
-    events.bind(input, 'keyup', function() {
-      password(input.value, function(res) {
-        passwordStrength(field, res.valid ? res.strength : null);
-      });
+  events.bind(input, 'keyup', function() {
+    // show password strength
+    validPassword(input.value, function(res) {
+      passwordStrength(field.fieldset, res.valid ? res.strength : null);
     });
+  });
+};
+
+/**
+ * Render result of the field.
+ */
+Form.prototype.render = function(fieldset, res) {
+  if (!fieldset) return;
+
+  if (res.valid) {
+    fieldset._class.remove('error').add('success');
+  } else {
+    fieldset._class.remove('success').add('error');
+  }
+  if (res.hint) {
+    message(fieldset, res.hint);
+  } else {
+    message(fieldset, '');
   }
 };
+
 
 function fieldset(node) {
   var count = 1;
@@ -79,32 +139,16 @@ function message(fieldset, text) {
 /**
  * Show password strength.
  */
-function passwordStrength(field, strength) {
-  if (!field) return;
+function passwordStrength(fieldset, strength) {
+  if (!fieldset) return;
   var levels = ['simple', 'medium', 'strong'];
   for (var i = 0; i < levels.length; i++) {
-    field._class.remove('password-strength-' + levels[i]);
+    fieldset._class.remove('password-strength-' + levels[i]);
   }
   if (strength) {
-    field._class.add('password-strength-' + strength);
+    fieldset._class.add('password-strength-' + strength);
   }
 }
 
-/**
- * Render result of the field.
- */
-function decorateField(field, res) {
-  if (!field) return;
-  if (res.valid) {
-    field._class.remove('error').add('success');
-  } else {
-    field._class.remove('success').add('error');
-  }
-  if (res.hint) {
-    message(field, res.hint);
-  } else {
-    message(field, '');
-  }
-}
 
 module.exports = Form;
