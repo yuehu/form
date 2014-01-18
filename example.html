@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Form</title>
   <link rel="stylesheet" href="form.css">
+  <script src="build/build.js"></script>
 </head>
 <body>
   <div class="container">
@@ -18,12 +19,12 @@
         </div>
       </fieldset>
 
-      <fieldset class="vertical-field error">
+      <fieldset class="vertical-field required">
         <div class="form-label">
           <label for="email">Email</label>
         </div>
         <div class="form-input">
-          <input id="email" type="email" placeholder="Email">
+          <input id="email" type="email" placeholder="Email" required>
         </div>
       </fieldset>
 
@@ -34,6 +35,11 @@
         <div class="form-input">
           <input id="password" type="password">
         </div>
+        <div class="password-strength">
+          <span class="strength-1"></span>
+          <span class="strength-2"></span>
+          <span class="strength-3"></span>
+        </div>
       </fieldset>
 
       <fieldset class="vertical-field">
@@ -41,5 +47,10 @@
       </fieldset>
     </form>
   </div>
+  <script>
+    var el = document.getElementsByTagName('form')[0];
+    var Form = require('form');
+    new Form(el);
+  </script>
 </body>
 </html>

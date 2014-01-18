@@ -2,6 +2,11 @@
   border: none;
   padding: 0 0 20px;
 }
+.required label:after {
+  content: '*';
+  vertical-align: middle;
+  margin-left: 2px;
+}
 
 .form-label, .form-message {
   color: #7C7C7C;
@@ -50,6 +55,27 @@
   color: #EB5E34;
 }
 
+.success .form-message,
 .error .form-message {
   visibility: visible;
+}
+
+/* Password Strength */
+.password-strength span {
+  display: inline-block;
+  width: 48px;
+  height: 5px;
+  background: rgba(0, 0, 0, 0.04);
+}
+.password-strength-simple span:first-of-type {
+  background: #EB5E34;
+}
+.password-strength-medium span {
+  background: #FCDB76;
+}
+.password-strength-medium span:last-of-type {
+  background: rgba(0, 0, 0, 0.04);
+}
+.password-strength-strong span {
+  background: #6BAB57;
 }

@@ -8,6 +8,9 @@
     "validation"
   ],
   "dependencies": {
+    "component/query": "*",
+    "component/event": "*",
+    "component/classes": "*",
     "yuehu/valid-email": "*",
     "yuehu/password-strength": "*"
   },
