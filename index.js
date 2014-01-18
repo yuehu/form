@@ -9,18 +9,41 @@ var password = require('password-strength');
 
 
 function Form(el) {
-  this.element = el;
-  this.fields = {};
+  var form = this;
+
+  form.element = el;
+  form.submits = [];
+  form.fields = {};
 
   var inputs = query.all('input', el);
-  for (var i = 0; i < inputs.length; i++) {
-    this.bind(inputs[i]);
+  var buttons = query.all('button', el);
+
+  var i;
+  for (i = 0; i < inputs.length; i++) {
+    form.bind(inputs[i]);
   }
+
+  for (i = 0; i < buttons.length; i++) {
+    (function(button) {
+      if (!button.type || button.type === 'submit') {
+        form.submits.push(button);
+      }
+    })(buttons[i]);
+  }
+
+  // initial check
+  form.checkSubmits();
 }
 
 
 Form.prototype.bind = function(input) {
   var form = this;
+
+  if (input.type === 'submit') {
+    form.submits.push(input);
+    return form;
+  }
+
   var f = fieldset(input);
 
   var field = {
@@ -29,7 +52,7 @@ Form.prototype.bind = function(input) {
     response: null
   };
 
-  form.fields[input] = field;
+  form.fields[identity(input)] = field;
 
   events.bind(input, 'focus', function() {
     f && f._class.remove('error').remove('success');
@@ -40,18 +63,24 @@ Form.prototype.bind = function(input) {
   });
 
   if (input.type === 'email') {
-    this.bindEmail(input);
+    form.bindEmail(input);
   } else if (input.type === 'password') {
-    this.bindPassword(input);
+    form.bindPassword(input);
+  } else {
+    events.bind(input, 'change', function() {
+      var res = {valid: isValid(input)};
+      field.valid = res.valid;
+      field.response = res;
+      form.render(field.fieldset, res);
+    });
   }
-
 };
 
 Form.prototype.bindEmail = function(input) {
   var form = this;
   var validEmail = require('valid-email');
 
-  var field = form.fields[input];
+  var field = form.fields[identity(input)];
 
   events.bind(input, 'change', function() {
     field.response = null;
@@ -60,10 +89,9 @@ Form.prototype.bindEmail = function(input) {
     if (!input.required && !input.value) return;
 
     validEmail(input.value, function(res) {
+      if (res.hint) res.hint = 'Did you mean: ' + res.hint;
       field.response = res;
       field.valid = res.valid;
-
-      if (res.hint) res.hint = 'Did you mean: ' + res.hint;
       form.render(field.fieldset, res);
     });
   });
@@ -72,7 +100,7 @@ Form.prototype.bindEmail = function(input) {
 Form.prototype.bindPassword = function(input) {
   var form = this;
   var validPassword = require('password-strength');
-  var field = form.fields[input];
+  var field = form.fields[identity(input)];
 
   events.bind(input, 'change', function() {
     field.response = null;
@@ -108,13 +136,45 @@ Form.prototype.render = function(fieldset, res) {
     fieldset._class.remove('success').add('error');
   }
   if (res.hint) {
-    message(fieldset, res.hint);
+    fieldMessage(fieldset, res.hint);
   } else {
-    message(fieldset, '');
+    fieldMessage(fieldset, '');
   }
+
+  // check when rendering
+  this.checkSubmits();
 };
 
 
+/**
+ * Check if this form is valid.
+ */
+Form.prototype.isValid = function() {
+  var fields = this.fields;
+
+  for (var key in fields) {
+    if (!fields[key].valid) return false;
+  }
+
+  return true;
+};
+
+/**
+ * Disable / enable submit buttons.
+ */
+Form.prototype.checkSubmits = function() {
+  var valid = this.isValid();
+  var buttons = this.submits;
+  for (var i = 0; i < buttons.length; i++) {
+    buttons[i].disabled = !valid;
+  }
+  return valid;
+};
+
+
+/**
+ * Find fieldset of the input.
+ */
 function fieldset(node) {
   var count = 1;
   while (node = node.parentNode) {
@@ -126,7 +186,10 @@ function fieldset(node) {
   }
 }
 
-function message(fieldset, text) {
+/**
+ * Render message for the given fieldset.
+ */
+function fieldMessage(fieldset, text) {
   var msg = query('.form-message', fieldset);
   if (!msg) {
     msg = document.createElement('div');
@@ -148,6 +211,28 @@ function passwordStrength(fieldset, strength) {
   if (strength) {
     fieldset._class.add('password-strength-' + strength);
   }
+}
+
+/**
+ * Identity of an input.
+ */
+function identity(input) {
+  var id = input.id || '';
+  var type = input.type || 'text';
+  var name = input.name || '';
+  return [id, type, name].join('-');
+}
+
+
+/**
+ * Check if the field is valid.
+ */
+function isValid(input) {
+  if (input.validity) {
+    return input.validity.valid;
+  }
+  // always return true for non-supported browsers
+  return true;
 }
 
 
