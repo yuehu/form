@@ -66,6 +66,10 @@
   width: 48px;
   height: 5px;
   background: rgba(0, 0, 0, 0.04);
+  -webkit-transition: background .2s ease-in-out;
+  -moz-transition: background .2s ease-in-out;
+  -ms-transition: background .2s ease-in-out;
+  transition: background .2s ease-in-out;
 }
 .password-strength-simple span:first-of-type {
   background: #EB5E34;
