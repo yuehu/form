@@ -12,7 +12,8 @@
     "component/event": "*",
     "component/classes": "*",
     "yuehu/valid-email": "*",
-    "yuehu/password-strength": "*"
+    "yuehu/password-strength": "*",
+    "component/emitter": "*"
   },
   "development": {},
   "license": "MIT",

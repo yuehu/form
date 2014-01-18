@@ -5,6 +5,7 @@
 var events = require('event');
 var query = require('query');
 var classes = require('classes');
+var emitter = require('emitter');
 var password = require('password-strength');
 
 
@@ -31,9 +32,13 @@ function Form(el) {
     })(buttons[i]);
   }
 
-  // initial check
-  form.checkSubmits();
+  form.on('change', function(res, field) {
+    field.valid = res.valid;
+    field.response = res;
+    form.render(field.fieldset, res);
+  });
 }
+emitter(Form.prototype);
 
 
 Form.prototype.bind = function(input) {
@@ -68,10 +73,7 @@ Form.prototype.bind = function(input) {
     form.bindPassword(input);
   } else {
     events.bind(input, 'change', function() {
-      var res = {valid: isValid(input)};
-      field.valid = res.valid;
-      field.response = res;
-      form.render(field.fieldset, res);
+      form.emit('change', {valid: isValid(input)}, field);
     });
   }
 };
@@ -90,9 +92,7 @@ Form.prototype.bindEmail = function(input) {
 
     validEmail(input.value, function(res) {
       if (res.hint) res.hint = 'Did you mean: ' + res.hint;
-      field.response = res;
-      field.valid = res.valid;
-      form.render(field.fieldset, res);
+      form.emit('change', res, field);
     });
   });
 };
@@ -110,9 +110,7 @@ Form.prototype.bindPassword = function(input) {
 
     // validate password
     validPassword(input.value, function(res) {
-      field.valid = res.valid;
-      field.response = res;
-      form.render(field.fieldset, res);
+      form.emit('change', res, field);
     });
   });
 
@@ -140,9 +138,6 @@ Form.prototype.render = function(fieldset, res) {
   } else {
     fieldMessage(fieldset, '');
   }
-
-  // check when rendering
-  this.checkSubmits();
 };
 
 
