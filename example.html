@@ -3,17 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <title>Form</title>
-  <link rel="stylesheet" href="form.css">
+  <link rel="stylesheet" href="build/build.css">
   <script src="build/build.js"></script>
   <style>
+    .footer {
+      color: #666;
+      font: 500 16px/1.6 "Helvetica Neue", Helvetica, sans-serif;
+    }
+    .footer a {
+      color: #444;
+    }
     .container {
       max-width: 650px;
-      margin: 90px auto;
+      margin: 60px auto;
+      padding: 30px 20px;
+    }
+    form {
+      margin: 20px 0 80px;
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <h1>Form</h1>
     <form action="">
       <fieldset class="vertical-field">
         <div class="form-label">
@@ -52,11 +64,14 @@
         <button>Sign Up</button>
       </fieldset>
     </form>
+    <div class="footer">
+      <p><a href="https://github.com/yuehu/form">Fork me on GitHub</a></p>
+      <p>A component by <a href="http://lepture.com/">Hsiaoming Yang</a></p>
+    </div>
   </div>
   <script>
     var el = document.getElementsByTagName('form')[0];
-    var Form = require('form');
-    var form = new Form(el);
+    var form = require('form')(el);
     form.checkSubmits();
     form.on('change', form.checkSubmits);
   </script>
