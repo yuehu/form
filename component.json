@@ -1,0 +1,23 @@
+{
+  "name": "form",
+  "repo": "yuehu/form",
+  "description": "Form UI and validation.",
+  "version": "0.0.1",
+  "keywords": [
+    "validate",
+    "validation"
+  ],
+  "dependencies": {
+    "yuehu/valid-email": "*",
+    "yuehu/password-strength": "*"
+  },
+  "development": {},
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": [
+    "index.js"
+  ],
+  "styles": [
+    "form.css"
+  ]
+}
