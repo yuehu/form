@@ -13,15 +13,18 @@
     "component/classes": "*",
     "yuehu/valid-email": "*",
     "yuehu/password-strength": "*",
-    "component/emitter": "*"
+    "component/emitter": "*",
+    "yuehu/on-stop": "*"
   },
   "development": {},
   "license": "MIT",
   "main": "index.js",
   "scripts": [
-    "index.js"
+    "index.js",
+    "lib/field.js"
   ],
   "styles": [
     "form.css"
-  ]
+  ],
+  "remotes": []
 }

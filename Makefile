@@ -17,4 +17,4 @@ gh-pages: components
 	@ghp-import gh-pages -n
 	@rm -fr gh-pages
 
-.PHONY: clean
+.PHONY: clean build
