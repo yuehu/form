@@ -6,7 +6,7 @@ var events = require('event');
 var query = require('query');
 var classes = require('classes');
 var emitter = require('emitter');
-var libfield = require('./lib/field');
+var valid = require('./lib/valid');
 
 // count for identity
 var identityCount = 0;
@@ -80,10 +80,10 @@ Form.prototype.bind = function(input) {
     if (field.response) form.render(f, field.response);
   });
 
-  if (libfield[input.type]) {
-    libfield[input.type](form, input);
+  if (valid[input.type]) {
+    valid[input.type](form, input);
   } else {
-    libfield.field(form, input);
+    valid.field(form, input);
   }
 };
 
@@ -123,12 +123,12 @@ Form.prototype.isValid = function() {
  * Disable / enable submit buttons.
  */
 Form.prototype.checkSubmits = function() {
-  var valid = this.isValid();
+  var ret = this.isValid();
   var buttons = this.submits;
   for (var i = 0; i < buttons.length; i++) {
-    buttons[i].disabled = !valid;
+    buttons[i].disabled = !ret;
   }
-  return valid;
+  return ret;
 };
 
 

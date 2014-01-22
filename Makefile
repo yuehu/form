@@ -1,5 +1,5 @@
 
-build: components index.js form.css
+build: components index.js lib/field.js form.css
 	@component build --dev
 
 components: component.json
@@ -16,5 +16,8 @@ gh-pages: components
 	@cp example.html gh-pages/index.html
 	@ghp-import gh-pages -n
 	@rm -fr gh-pages
+
+watch:
+	@rewatch *.js lib/*.js *.css -c "make build"
 
 .PHONY: clean build
