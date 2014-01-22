@@ -790,6 +790,10 @@ var events = require('event');
 var query = require('query');
 var classes = require('classes');
 var emitter = require('emitter');
+var valid = require('./lib/valid');
+
+// count for identity
+var identityCount = 0;
 
 
 function Form(el) {
@@ -830,6 +834,7 @@ emitter(Form.prototype);
 
 Form.prototype.bind = function(input) {
   var form = this;
+  input._ident = identity(input);
 
   if (input.type === 'submit') {
     form.submits.push(input);
@@ -849,7 +854,7 @@ Form.prototype.bind = function(input) {
     response: null
   };
 
-  form.fields[identity(input)] = field;
+  form.fields[input._ident] = field;
 
   events.bind(input, 'focus', function() {
     f && f._class.remove('error').remove('success');
@@ -859,59 +864,11 @@ Form.prototype.bind = function(input) {
     if (field.response) form.render(f, field.response);
   });
 
-  if (input.type === 'email') {
-    form.bindEmail(input);
-  } else if (input.type === 'password') {
-    form.bindPassword(input);
+  if (valid[input.type]) {
+    valid[input.type](form, input);
   } else {
-    events.bind(input, 'change', function() {
-      form.emit('change', {valid: isValid(input)}, field);
-    });
+    valid.field(form, input);
   }
-};
-
-Form.prototype.bindEmail = function(input) {
-  var form = this;
-  var validEmail = require('valid-email');
-
-  var field = form.fields[identity(input)];
-
-  events.bind(input, 'change', function() {
-    field.response = null;
-
-    // not required field can has no value
-    if (!input.required && !input.value) return;
-
-    validEmail(input.value, function(res) {
-      if (res.hint) res.hint = 'Did you mean: ' + res.hint;
-      form.emit('change', res, field);
-    });
-  });
-};
-
-Form.prototype.bindPassword = function(input) {
-  var form = this;
-  var validPassword = require('password-strength');
-  var field = form.fields[identity(input)];
-
-  events.bind(input, 'change', function() {
-    field.response = null;
-
-    // not required field can has no value
-    if (!input.required && !input.value) return;
-
-    // validate password
-    validPassword(input.value, function(res) {
-      form.emit('change', res, field);
-    });
-  });
-
-  events.bind(input, 'keyup', function() {
-    // show password strength
-    validPassword(input.value, function(res) {
-      passwordStrength(field.fieldset, res.valid ? res.strength : null);
-    });
-  });
 };
 
 /**
@@ -950,12 +907,12 @@ Form.prototype.isValid = function() {
  * Disable / enable submit buttons.
  */
 Form.prototype.checkSubmits = function() {
-  var valid = this.isValid();
+  var ret = this.isValid();
   var buttons = this.submits;
   for (var i = 0; i < buttons.length; i++) {
-    buttons[i].disabled = !valid;
+    buttons[i].disabled = !ret;
   }
-  return valid;
+  return ret;
 };
 
 
@@ -986,6 +943,86 @@ function fieldMessage(fieldset, text) {
   msg.innerHTML = text;
 }
 
+
+/**
+ * Identity of an input.
+ */
+function identity(input) {
+  var id = input.id || '';
+  var type = input.type || 'text';
+  var name = input.name || '';
+  return [id, type, name, identityCount++].join('-');
+}
+
+
+module.exports = Form;
+
+});
+require.register("form/lib/valid.js", function(exports, require, module){
+
+var events = require('event');
+
+
+/**
+ * Validate email.
+ */
+exports.email = function(form, input) {
+  var validEmail = require('valid-email');
+
+  var field = form.fields[input._ident];
+
+  events.bind(input, 'change', function() {
+    field.response = null;
+
+    // not required field can has no value
+    if (!input.required && !input.value) return;
+
+    validEmail(input.value, function(res) {
+      if (res.hint) res.hint = 'Did you mean: ' + res.hint;
+      form.emit('change', res, field);
+    });
+  });
+};
+
+
+/**
+ * Validate password
+ */
+exports.password = function(form, input) {
+  var validPassword = require('password-strength');
+  var field = form.fields[input._ident];
+
+  events.bind(input, 'change', function() {
+    field.response = null;
+
+    // not required field can has no value
+    if (!input.required && !input.value) return;
+
+    // validate password
+    validPassword(input.value, function(res) {
+      form.emit('change', res, field);
+    });
+  });
+
+  events.bind(input, 'keyup', function() {
+    // show password strength
+    validPassword(input.value, function(res) {
+      passwordStrength(field.fieldset, res.valid ? res.strength : null);
+    });
+  });
+};
+
+/**
+ * Validate other fields.
+ */
+exports.field = function(form, input) {
+  var field = form.fields[input._ident];
+  events.bind(input, 'change', function() {
+    form.emit('change', {valid: isValid(input)}, field);
+  });
+};
+
+
 /**
  * Show password strength.
  */
@@ -1000,16 +1037,6 @@ function passwordStrength(fieldset, strength) {
   }
 }
 
-/**
- * Identity of an input.
- */
-function identity(input) {
-  var id = input.id || '';
-  var type = input.type || 'text';
-  var name = input.name || '';
-  return [id, type, name].join('-');
-}
-
 
 /**
  * Check if the field is valid.
@@ -1021,9 +1048,6 @@ function isValid(input) {
   // always return true for non-supported browsers
   return true;
 }
-
-
-module.exports = Form;
 
 });
 
