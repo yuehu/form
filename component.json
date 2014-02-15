@@ -11,6 +11,7 @@
     "component/query": "*",
     "component/event": "*",
     "component/classes": "*",
+    "yuehu/on-stop": "*",
     "yuehu/valid-email": "*",
     "yuehu/password-strength": "*",
     "component/emitter": "*"

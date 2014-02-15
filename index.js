@@ -6,6 +6,7 @@ var events = require('event');
 var query = require('query');
 var classes = require('classes');
 var emitter = require('emitter');
+var onStop = require('on-stop');
 var valid = require('./lib/valid');
 
 // count for identity
@@ -38,6 +39,10 @@ function Form(el) {
       }
     })(buttons[i]);
   }
+
+  var lastInput = inputs[inputs.length-1];
+  var lastField = form.fields[lastInput._ident];
+  onStop(lastInput, lastField.checkValid);
 
   form.on('change', function(res, field) {
     field.valid = res.valid;
@@ -73,7 +78,16 @@ Form.prototype.bind = function(input) {
   form.fields[input._ident] = field;
 
   events.bind(input, 'focus', function() {
-    f && f._class.remove('error').remove('success');
+    if (!f) return;
+
+    if (f._class.has('error') && field.checkValid) {
+      if (!field._bindOnStop) {
+        onStop(input, field.checkValid);
+        ield._bindOnStop = true;
+      }
+    }
+
+    f._class.remove('error').remove('success');
   });
 
   events.bind(input, 'blur', function() {
@@ -129,6 +143,12 @@ Form.prototype.checkSubmits = function() {
     buttons[i].disabled = !ret;
   }
   return ret;
+};
+
+Form.prototype.init = function() {
+  var me = this;
+  me.checkSubmits();
+  me.on('change', me.checkSubmits);
 };
 
 
