@@ -1,5 +1,5 @@
 
-build: components index.js lib/field.js form.css
+build: components index.js lib/valid.js form.css
 	@component build --dev
 
 components: component.json
