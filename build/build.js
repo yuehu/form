@@ -456,6 +456,28 @@ ClassList.prototype.contains = function(name){
 };
 
 });
+require.register("yuehu-on-stop/index.js", function(exports, require, module){
+/**
+ * Execute the given function when user stops typing.
+ */
+
+var events = require('event');
+
+module.exports = function(el, func, time) {
+  // micro seconds
+  time = time || 400;
+
+  var timer;
+  events.bind(el, 'keyup', function() {
+    timer = setTimeout(func, time);
+  });
+
+  events.bind(el, 'keydown', function() {
+    clearTimeout(timer);
+  });
+};
+
+});
 require.register("yuehu-valid-email/index.js", function(exports, require, module){
 
 var d = document;
@@ -790,6 +812,7 @@ var events = require('event');
 var query = require('query');
 var classes = require('classes');
 var emitter = require('emitter');
+var onStop = require('on-stop');
 var valid = require('./lib/valid');
 
 // count for identity
@@ -822,6 +845,10 @@ function Form(el) {
       }
     })(buttons[i]);
   }
+
+  var lastInput = inputs[inputs.length-1];
+  var lastField = form.fields[lastInput._ident];
+  onStop(lastInput, lastField.checkValid);
 
   form.on('change', function(res, field) {
     field.valid = res.valid;
@@ -857,7 +884,16 @@ Form.prototype.bind = function(input) {
   form.fields[input._ident] = field;
 
   events.bind(input, 'focus', function() {
-    f && f._class.remove('error').remove('success');
+    if (!f) return;
+
+    if (f._class.has('error') && field.checkValid) {
+      if (!field._bindOnStop) {
+        onStop(input, field.checkValid);
+        ield._bindOnStop = true;
+      }
+    }
+
+    f._class.remove('error').remove('success');
   });
 
   events.bind(input, 'blur', function() {
@@ -913,6 +949,12 @@ Form.prototype.checkSubmits = function() {
     buttons[i].disabled = !ret;
   }
   return ret;
+};
+
+Form.prototype.init = function() {
+  var me = this;
+  me.checkSubmits();
+  me.on('change', me.checkSubmits);
 };
 
 
@@ -971,7 +1013,7 @@ exports.email = function(form, input) {
 
   var field = form.fields[input._ident];
 
-  events.bind(input, 'change', function() {
+  field.checkValid = function() {
     field.response = null;
 
     // not required field can has no value
@@ -981,7 +1023,9 @@ exports.email = function(form, input) {
       if (res.hint) res.hint = 'Did you mean: ' + res.hint;
       form.emit('change', res, field);
     });
-  });
+  };
+
+  events.bind(input, 'change', field.checkValid);
 };
 
 
@@ -992,7 +1036,7 @@ exports.password = function(form, input) {
   var validPassword = require('password-strength');
   var field = form.fields[input._ident];
 
-  events.bind(input, 'change', function() {
+  field.checkValid = function() {
     field.response = null;
 
     // not required field can has no value
@@ -1002,7 +1046,9 @@ exports.password = function(form, input) {
     validPassword(input.value, function(res) {
       form.emit('change', res, field);
     });
-  });
+  };
+
+  events.bind(input, 'change', field.checkValid);
 
   events.bind(input, 'keyup', function() {
     // show password strength
@@ -1017,9 +1063,10 @@ exports.password = function(form, input) {
  */
 exports.field = function(form, input) {
   var field = form.fields[input._ident];
-  events.bind(input, 'change', function() {
+  field.checkValid = function() {
     form.emit('change', {valid: isValid(input)}, field);
-  });
+  };
+  events.bind(input, 'change', field.checkValid);
 };
 
 
@@ -1062,6 +1109,8 @@ function isValid(input) {
 
 
 
+
+
 require.alias("component-query/index.js", "form/deps/query/index.js");
 require.alias("component-query/index.js", "query/index.js");
 
@@ -1072,6 +1121,12 @@ require.alias("component-classes/index.js", "form/deps/classes/index.js");
 require.alias("component-classes/index.js", "classes/index.js");
 require.alias("component-indexof/index.js", "component-classes/deps/indexof/index.js");
 
+require.alias("yuehu-on-stop/index.js", "form/deps/on-stop/index.js");
+require.alias("yuehu-on-stop/index.js", "form/deps/on-stop/index.js");
+require.alias("yuehu-on-stop/index.js", "on-stop/index.js");
+require.alias("component-event/index.js", "yuehu-on-stop/deps/event/index.js");
+
+require.alias("yuehu-on-stop/index.js", "yuehu-on-stop/index.js");
 require.alias("yuehu-valid-email/index.js", "form/deps/valid-email/index.js");
 require.alias("yuehu-valid-email/index.js", "form/deps/valid-email/index.js");
 require.alias("yuehu-valid-email/index.js", "valid-email/index.js");
