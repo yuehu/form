@@ -83,7 +83,7 @@ Form.prototype.bind = function(input) {
     if (f._class.has('error') && field.checkValid) {
       if (!field._bindOnStop) {
         onStop(input, field.checkValid);
-        ield._bindOnStop = true;
+        field._bindOnStop = true;
       }
     }
 
