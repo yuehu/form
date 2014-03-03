@@ -18,7 +18,7 @@
   font-weight: 500;
 }
 
-.form-input input {
+.form-input input, .form-input textarea {
   border: none;
   border-radius: 4px;
   outline: none;
@@ -29,6 +29,9 @@
   box-sizing: border-box;
   width: 300px;
   margin-right: 4px;
+}
+.form-input textarea {
+  width: 80%;
 }
 .form-message {
   visibility: hidden;
